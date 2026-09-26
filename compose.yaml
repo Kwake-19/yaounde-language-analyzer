@@ -1,0 +1,6 @@
+services:
+  analyzer:
+    build: .
+    image: yla
+    stdin_open: true
+    tty: true

@@ -5,18 +5,21 @@ CS4110 Compiler Construction
 A table-driven, stack-based LL(1) parser for the grammar documented in
 grammar/grammar_notes.md. Tokens come from lexer/lexer.py.
 
-Usage:
-    python parser.py                   run the whole dataset
-    python parser.py "some sentence"   parse one sentence and print its trace
+Usage (from the project root; "python parser.py" from inside parser/ also works):
+    python parser/parser.py                   run the whole dataset
+    python parser/parser.py "some sentence"   parse one sentence and print its trace
 
 Standard library only.
 """
 
-import os
 import sys
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "lexer"))
+# lexer.py lives in the sibling lexer/ folder (not a package), so put that
+# folder on the import path. Built from __file__, so the import works no
+# matter which directory the script is started from.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "lexer"))
 
 import lexer  # noqa: E402
 

@@ -20,8 +20,8 @@ Standard library only.
 """
 
 import csv
-import os
 import re
+from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Token categories (terminals of the grammar)
@@ -389,8 +389,10 @@ def analyze_sentence(sentence):
 # ---------------------------------------------------------------------------
 # Dataset helpers
 # ---------------------------------------------------------------------------
-DEFAULT_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           "..", "data", "collected_sentences.csv")
+# Built from this file's location, so it works from any working directory
+# (project root, lexer/, or /app inside Docker).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_CSV = PROJECT_ROOT / "data" / "collected_sentences.csv"
 
 # Used only when the dataset has no rows yet, so the scripts can be smoke-tested.
 # These are NOT part of the collected corpus.
@@ -409,10 +411,11 @@ DEMO_SENTENCES = [
 def load_sentences(path=DEFAULT_CSV):
     """Read (id, topic, sentence) rows; skips rows with an empty sentence."""
     rows = []
-    if not os.path.exists(path):
-        print("Warning: dataset not found at %s" % os.path.normpath(path))
+    path = Path(path)
+    if not path.exists():
+        print("Warning: dataset not found at %s" % path)
         return rows
-    with open(path, newline="", encoding="utf-8-sig") as f:
+    with path.open(newline="", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
             sentence = (row.get("sentence") or "").strip()
             if sentence:
@@ -434,7 +437,7 @@ if __name__ == "__main__":
 
     rows = load_sentences()
     if rows:
-        print("Loaded %d sentences from %s\n" % (len(rows), os.path.normpath(DEFAULT_CSV)))
+        print("Loaded %d sentences from %s\n" % (len(rows), DEFAULT_CSV))
     else:
         print("Dataset is empty - using built-in demo sentences (not part of the corpus).\n")
         rows = demo_rows()

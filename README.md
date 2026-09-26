@@ -56,39 +56,52 @@ Only the Python standard library is used. Nothing needs to be installed.
 
 You need Python 3.8 or newer.
 
+Run these commands from the project root:
+
 ```bash
 # Tag sentences with the lexer
-cd lexer
-python lexer.py
+python lexer/lexer.py
 
 # Parse the whole dataset
-cd ../parser
-python parser.py
+python parser/parser.py
 
 # Parse a single sentence and show its full LL(1) trace
-python parser.py "Je vais au marche, abi?"
+python parser/parser.py "Je vais au marche, abi?"
 ```
 
-On some systems the command is `python3` instead of `python`.
+On some systems the command is `python3` instead of `python`. The scripts find
+`lexer/` and `data/` from their own location, so you can also run them from
+inside their own folders, for example `cd parser && python parser.py`.
 
 If `data/collected_sentences.csv` has no rows yet, both scripts run on a few
 built-in demo sentences. These demo sentences are not part of the corpus.
 
 ## Running with Docker
 
+Run these commands from the project root.
+
+With plain Docker:
+
 ```bash
-docker build -t yaounde-analyzer .
-docker run --rm yaounde-analyzer
+docker build -t yla .
+docker run --rm -it yla
+```
+
+With Docker Compose, using `compose.yaml`:
+
+```bash
+docker compose up --build
+docker compose down        # removes the stopped container afterwards
 ```
 
 To parse a single sentence:
 
 ```bash
-docker run --rm yaounde-analyzer python3 parser.py "Mola, drop me for Mokolo"
+docker run --rm -it yla python3 parser/parser.py "Mola, drop me for Mokolo"
 ```
 
-Rebuild the image after you edit the dataset, because the data is copied into
-the image at build time.
+Add `--build` again (or rebuild the image) after you edit the dataset or the
+code, because the files are copied into the image at build time.
 
 ## Dataset Format
 
@@ -109,6 +122,7 @@ yaounde-language-analyzer/
 ├── .gitignore
 ├── .dockerignore
 ├── Dockerfile               # python:3.11-slim image that runs the parser
+├── compose.yaml             # single-service setup for `docker compose up --build`
 ├── README.md
 ├── data/
 │   └── collected_sentences.csv   # the collected corpus (id, topic, sentence)
