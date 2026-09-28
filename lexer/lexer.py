@@ -39,6 +39,9 @@ MONEY_NUMBER = "MONEY_NUMBER"
 LOCATION = "LOCATION"
 PARTICLE = "PARTICLE"
 UNKNOWN = "UNKNOWN"
+VALID_CATEGORIES = {NOUN, VERB, PRONOUN, PREPOSITION, ADJECTIVE, GREETING_ADDRESS,
+                     DISCOURSE_MARKER, TAG_QUESTION, SLANG_INTERJECTION,
+                     MONEY_NUMBER, LOCATION, PARTICLE}
 
 # ---------------------------------------------------------------------------
 # Spelling normalisation (applied to single raw words)
@@ -289,6 +292,30 @@ def _build_lexicon():
 
 
 WORDS, PHRASES = _build_lexicon()
+def _load_extra_vocabulary(path=None):
+    """Load additional word -> category pairs from data/vocabulary.csv."""
+    if path is None:
+        path = Path(__file__).resolve().parent.parent / "data" / "vocabulary.csv"
+    path = Path(path)
+    if not path.exists():
+        return
+    with path.open(newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            word = (row.get("word") or "").strip()
+            category = (row.get("category") or "").strip().upper()
+            if not word or not category:
+                continue
+            if category not in VALID_CATEGORIES:
+                print("Warning: skipping '%s' - unknown category '%s'" % (word, category))
+                continue
+            key = strip_accents(word.lower())
+            if " " in key:
+                PHRASES[tuple(key.split())] = category
+            else:
+                WORDS[key] = category
+
+
+_load_extra_vocabulary()
 MAX_PHRASE_LEN = max(len(p) for p in PHRASES)
 
 
